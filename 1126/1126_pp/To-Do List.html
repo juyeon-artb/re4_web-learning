@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>할 일 목록</title>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: "Pretendard", sans-serif;
+        background-color: #f1f3ff;
+      }
+
+      /* 상단 헤더 */
+      .top-bar {
+        width: 100%;
+        background: linear-gradient(135deg, #5a7cff, #7e97ff);
+        color: white;
+        padding: 20px 0;
+        text-align: center;
+        font-size: 26px;
+        font-weight: 700;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+        letter-spacing: -1px;
+      }
+
+      /* 입력창 박스 */
+      .input-box {
+        width: 90%;
+        max-width: 500px;
+        margin: 40px auto;
+        display: flex;
+        background: white;
+        padding: 15px;
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        align-items: center;
+        gap: 12px;
+      }
+
+      /* 입력창 */
+      #todo-input {
+        flex: 1;
+        padding: 12px 14px;
+        font-size: 16px;
+        border: 2px solid #d3d7ff;
+        border-radius: 10px;
+        outline: none;
+        background-color: #fafaff;
+      }
+
+      #todo-input:focus {
+        border-color: #6b82ff;
+        box-shadow: 0 0 8px rgba(90, 124, 255, 0.3);
+      }
+
+      /* 예쁜 체크 버튼 */
+      .add-btn {
+        width: 40px;
+        height: 40px;
+        background-color: #6c86ff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 22px;
+        color: white;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        transition: 0.2s;
+      }
+
+      .add-btn:hover {
+        background-color: #5e74e6;
+        transform: translateY(-2px);
+      }
+
+      .add-btn:active {
+        transform: scale(0.95);
+      }
+
+      /* 리스트 */
+      ul {
+        list-style: none;
+        padding: 0;
+        width: 90%;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      li {
+        background: white;
+        margin-top: 12px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        font-size: 17px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: 0.2s;
+      }
+
+      /* 삭제 버튼 */
+      .delete-btn {
+        background: #ff5e5e;
+        border: none;
+        color: white;
+        padding: 6px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.2s;
+      }
+
+      .delete-btn:hover {
+        background: #ff3c3c;
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 상단 헤더 -->
+    <div class="top-bar">📝 할 일 목록</div>
+
+    <!-- 입력창 박스 -->
+    <div class="input-box">
+      <input
+        type="text"
+        id="todo-input"
+        placeholder="오늘의 할 일을 적어보세요…"
+      />
+
+      <!-- 체크 버튼 (✓ 아이콘) -->
+      <button class="add-btn" id="add-btn">✓</button>
+    </div>
+
+    <!-- 리스트 -->
+    <ul id="todo-list"></ul>
+
+    <script>
+      const input = document.querySelector("#todo-input");
+      const addBtn = document.querySelector("#add-btn");
+      const list = document.querySelector("#todo-list");
+
+      // 할 일 추가 함수
+      function addItem() {
+        const text = input.value.trim();
+        if (text === "") return;
+
+        const li = document.createElement("li");
+        li.textContent = text;
+
+        // 삭제 버튼 생성
+        const del = document.createElement("button");
+        del.textContent = "삭제";
+        del.classList.add("delete-btn");
+        del.addEventListener("click", () => li.remove());
+
+        // li 오른쪽에 붙이기
+        li.appendChild(del);
+
+        // 리스트에 추가
+        list.appendChild(li);
+
+        // 입력창 초기화
+        input.value = "";
+        input.focus();
+      }
+
+      // 버튼 클릭 시 추가
+      addBtn.addEventListener("click", addItem);
+
+      // Enter 키 입력으로 추가
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") addItem();
+      });
+    </script>
+  </body>
+</html>
