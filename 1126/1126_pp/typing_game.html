@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Typing Game Mode</title>
+
+    <style>
+      body {
+        font-family: "Pretendard", sans-serif;
+        background: linear-gradient(135deg, #8ea6ff, #b8c3ff);
+        margin: 0;
+        padding: 0;
+        text-align: center;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 650px;
+        margin: 50px auto;
+        background: #ffffffdd;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      h1 {
+        font-size: 32px;
+        color: #3649ff;
+        margin-bottom: 10px;
+      }
+
+      /* 난이도 버튼 */
+      .mode-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 25px;
+      }
+
+      .mode-btn {
+        padding: 10px 18px;
+        font-size: 16px;
+        border-radius: 10px;
+        border: none;
+        background: #6c86ff;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 3px 8px rgba(0, 0, 95, 0.2);
+      }
+      .mode-btn:hover {
+        background: #5a74e6;
+      }
+
+      /* 문제 박스 */
+      .quiz-box {
+        font-size: 28px;
+        font-weight: 700;
+        padding: 20px;
+        background: #e8ecff;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        min-height: 60px;
+      }
+
+      /* 입력창 */
+      #answer-input {
+        width: 85%;
+        padding: 14px;
+        font-size: 18px;
+        border: 2px solid #8aa0ff;
+        border-radius: 12px;
+        outline: none;
+        background: #f5f6ff;
+      }
+      #answer-input:focus {
+        border-color: #4c64ff;
+        box-shadow: 0 0 10px rgba(80, 100, 255, 0.4);
+      }
+
+      /* 점수 & 타이머 */
+      .info-box {
+        margin-top: 20px;
+        font-size: 22px;
+        font-weight: 700;
+        color: #333;
+        display: flex;
+        justify-content: space-around;
+      }
+
+      /* 키보드 */
+      .keyboard {
+        width: 90%;
+        max-width: 600px;
+        margin: 40px auto 0;
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 8px;
+      }
+
+      .key {
+        padding: 12px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        font-size: 17px;
+        font-weight: 600;
+        transition: 0.1s;
+      }
+
+      .key.active {
+        background: #4b62ff;
+        color: white;
+        transform: scale(0.95);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) inset;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>🎮 Typing Game Mode</h1>
+
+      <!-- 난이도 버튼 -->
+      <div class="mode-buttons">
+        <button class="mode-btn" onclick="setMode('easy')">Easy</button>
+        <button class="mode-btn" onclick="setMode('normal')">Normal</button>
+        <button class="mode-btn" onclick="setMode('hard')">Hard</button>
+      </div>
+
+      <!-- 문제 -->
+      <div class="quiz-box" id="quiz-text">난이도를 선택해주세요.</div>
+
+      <!-- 입력 -->
+      <input
+        type="text"
+        id="answer-input"
+        placeholder="Enter로 제출하세요!"
+        disabled
+      />
+
+      <!-- 점수 + 타이머 -->
+      <div class="info-box">
+        <div>⏱ Time: <span id="timer">30</span>s</div>
+        <div>⭐ Score: <span id="score">0</span></div>
+      </div>
+    </div>
+
+    <!-- 미니 키보드 -->
+    <div class="keyboard">
+      <div class="key">q</div>
+      <div class="key">w</div>
+      <div class="key">e</div>
+      <div class="key">r</div>
+      <div class="key">t</div>
+      <div class="key">y</div>
+      <div class="key">u</div>
+      <div class="key">i</div>
+      <div class="key">o</div>
+      <div class="key">p</div>
+
+      <div class="key">a</div>
+      <div class="key">s</div>
+      <div class="key">d</div>
+      <div class="key">f</div>
+      <div class="key">g</div>
+      <div class="key">h</div>
+      <div class="key">j</div>
+      <div class="key">k</div>
+      <div class="key">l</div>
+      <div class="key">;</div>
+
+      <div class="key">z</div>
+      <div class="key">x</div>
+      <div class="key">c</div>
+      <div class="key">v</div>
+      <div class="key">b</div>
+      <div class="key">n</div>
+      <div class="key">m</div>
+      <div class="key">,</div>
+      <div class="key">.</div>
+      <div class="key">/</div>
+    </div>
+
+    <script>
+      /* ------------------------------
+       1) 단어 리스트
+    ------------------------------ */
+      const easyWords = [
+        "apple",
+        "banana",
+        "orange",
+        "grape",
+        "water",
+        "mouse",
+        "computer",
+        "school",
+        "pretty",
+        "hello",
+        "world",
+        "typing",
+        "practice",
+        "coffee",
+        "happy",
+        "winter",
+        "summer",
+        "keyboard",
+        "teacher",
+        "student",
+        "house",
+        "family",
+        "phone",
+        "music",
+        "dog",
+        "cat",
+        "bread",
+        "car",
+        "book",
+        "desk",
+        "chair",
+        "milk",
+        "pizza",
+        "friend",
+        "smile",
+        "light",
+        "flower",
+        "blue",
+        "green",
+        "yellow",
+        "tree",
+        "river",
+        "snow",
+        "rain",
+        "cloud",
+        "star",
+        "earth",
+        "game",
+        "pencil",
+        "paper",
+      ];
+
+      const normalWords = [
+        "challenge",
+        "library",
+        "general",
+        "history",
+        "language",
+        "picture",
+        "memory",
+        "science",
+        "planet",
+        "holiday",
+        "important",
+        "problem",
+        "control",
+        "energy",
+        "message",
+        "reason",
+        "pattern",
+        "moment",
+        "future",
+        "machine",
+        "nature",
+        "company",
+        "experience",
+        "favorite",
+        "return",
+        "increase",
+        "suggestion",
+        "comfortable",
+        "difficult",
+        "prepare",
+        "character",
+        "weather",
+        "subject",
+        "culture",
+        "custom",
+        "discovery",
+        "solution",
+        "activity",
+        "balance",
+        "calendar",
+        "direction",
+        "education",
+        "library",
+        "mountain",
+        "improve",
+        "protect",
+        "recycle",
+        "station",
+        "journey",
+        "develop",
+      ];
+
+      const hardSentences = [
+        "The quick brown fox jumps over the lazy dog.",
+        "Typing practice helps improve accuracy and speed.",
+        "She wondered whether the mysterious message was meant for her.",
+        "The scientist conducted experiments to support his hypothesis.",
+        "Technology continues to evolve at an extraordinary pace.",
+        "Success often requires patience, discipline, and consistent effort.",
+        "The ancient manuscript contained secrets lost for centuries.",
+        "Achieving goals requires clear focus and strong determination.",
+        "Understanding complex ideas takes time and perseverance.",
+        "He believed that knowledge was the key to solving any problem.",
+        "The orchestra performed beautifully despite limited rehearsal time.",
+        "Her dedication to research earned her international recognition.",
+        "Innovation thrives in environments that encourage experimentation.",
+        "The museum displayed artifacts from ancient civilizations.",
+        "Curiosity drives innovation and inspires scientific breakthroughs.",
+        "The forest was home to countless species of plants and animals.",
+        "The astronaut described Earth as breathtaking from space.",
+        "The investigation uncovered evidence that changed the entire case.",
+        "The unexpected storm forced them to change their travel plans.",
+        "The engineer designed a system that could operate autonomously.",
+        "The long-term project required careful planning and patience.",
+        "She overcame obstacles by maintaining a positive mindset.",
+        "The artist used vibrant colors to convey strong emotions.",
+        "They collaborated on a project that required both skill and imagination.",
+        "The negotiation required careful strategy and flexibility.",
+        "He discovered new talent by pushing his limitations.",
+        "Communication is essential for successful teamwork.",
+        "The city invested in sustainable energy solutions.",
+        "Success often requires discipline and consistent effort.",
+        "Despite the challenges, the community worked together to rebuild.",
+        "The experiment revealed unexpected patterns in the data.",
+        "Innovation drives progress across every scientific field.",
+        "The professor explained the theory using simple examples.",
+        "The organization provided resources to support local communities.",
+        "She discovered that creativity grows with curiosity.",
+        "Understanding multiple perspectives strengthens problem solving.",
+        "He spent months researching the structure of the universe.",
+        "The complicated puzzle challenged even advanced players.",
+        "They planned a journey across the desert despite the risks.",
+        "The company introduced an innovative product to the market.",
+        "Her ability to remain calm under pressure impressed everyone.",
+        "The library preserved documents for future generations.",
+        "Achieving goals requires focus and determination.",
+        "Technology evolves at an extraordinary pace.",
+        "The spacecraft traveled farther than expected.",
+        "The forest was home to many species of animals.",
+        "He believed knowledge was the key to success.",
+        "The ancient text contained valuable information.",
+      ];
+
+      /* ------------------------------
+       2) 게임 변수
+    ------------------------------ */
+      let currentList = [];
+      let currentText = "";
+      let score = 0;
+      let timeLeft = 30;
+      let timerInterval = null;
+
+      const quizText = document.getElementById("quiz-text");
+      const input = document.getElementById("answer-input");
+      const scoreDisplay = document.getElementById("score");
+      const timerDisplay = document.getElementById("timer");
+      const keys = document.querySelectorAll(".key");
+
+      /* ------------------------------
+       3) 난이도 설정
+    ------------------------------ */
+      function setMode(mode) {
+        if (mode === "easy") currentList = easyWords;
+        if (mode === "normal") currentList = normalWords;
+        if (mode === "hard") currentList = hardSentences;
+
+        score = 0;
+        timeLeft = 30;
+        scoreDisplay.textContent = score;
+        timerDisplay.textContent = timeLeft;
+
+        input.disabled = false;
+        input.value = "";
+        input.focus();
+
+        startTimer();
+        newProblem();
+      }
+
+      /* ------------------------------
+       4) 타이머 시작
+    ------------------------------ */
+      function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          timerDisplay.textContent = timeLeft;
+
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            endGame();
+          }
+        }, 1000);
+      }
+
+      /* ------------------------------
+       5) 게임 종료
+    ------------------------------ */
+      function endGame() {
+        quizText.textContent = "⛔ TIME OVER!";
+        input.disabled = true;
+        input.value = "";
+      }
+
+      /* ------------------------------
+       6) 문제 출제
+    ------------------------------ */
+      function newProblem() {
+        const rand = Math.floor(Math.random() * currentList.length);
+        currentText = currentList[rand];
+        quizText.textContent = currentText;
+        input.value = "";
+      }
+
+      /* ------------------------------
+       7) 정답 판정 ( +5 / -1 )
+    ------------------------------ */
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !input.disabled) {
+          if (input.value.trim() === currentText.trim()) {
+            score += 5;
+          } else {
+            score -= 1;
+          }
+          scoreDisplay.textContent = score;
+          newProblem();
+        }
+      });
+
+      /* ------------------------------
+       8) 키보드 눌림 애니메이션
+    ------------------------------ */
+      document.addEventListener("keydown", (e) => {
+        keys.forEach((k) => {
+          if (k.textContent === e.key.toLowerCase()) {
+            k.classList.add("active");
+          }
+        });
+      });
+
+      document.addEventListener("keyup", (e) => {
+        keys.forEach((k) => {
+          if (k.textContent === e.key.toLowerCase()) {
+            k.classList.remove("active");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
