@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Time Lab PRO</title>
+
+    <!-- GOOGLE FONT -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* ------------------------------
+      Global Style
+  ------------------------------ */
+      body {
+        margin: 0;
+        font-family: "Pretendard", sans-serif;
+        background: radial-gradient(
+          circle at top left,
+          #4f8bff 0%,
+          #0a1020 45%,
+          #03050d 100%
+        );
+        color: #eef3ff;
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 40px 20px;
+      }
+
+      .app {
+        max-width: 1100px;
+        width: 100%;
+      }
+
+      .title {
+        font-size: 32px;
+        font-weight: 700;
+        text-shadow: 0 0 18px rgba(120, 150, 255, 0.9);
+      }
+
+      .subtitle {
+        font-size: 14px;
+        color: #a9b8ff;
+        margin-top: 4px;
+      }
+
+      /* ------------------------------
+        Cards Grid
+    ------------------------------ */
+      .time-grid {
+        margin-top: 28px;
+        display: grid;
+        gap: 22px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      }
+
+      .card {
+        background: rgba(10, 16, 30, 0.84);
+        border-radius: 22px;
+        padding: 22px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55),
+          0 0 0 1px rgba(120, 150, 255, 0.16);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(140, 170, 255, 0.12);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .card-title {
+        font-size: 18px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4f8bff, #744fff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 12px rgba(100, 130, 255, 0.6);
+      }
+
+      .card-tag {
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(120, 140, 255, 0.18);
+        border: 1px solid rgba(100, 130, 255, 0.5);
+        font-size: 11px;
+      }
+
+      /* ------------------------------
+        Clock
+    ------------------------------ */
+      #clock {
+        text-align: center;
+        font-size: 42px;
+        font-weight: 600;
+        margin-top: 20px;
+      }
+
+      /* ------------------------------
+        Stopwatch
+    ------------------------------ */
+      #stopwatch {
+        text-align: center;
+        font-size: 36px;
+        margin: 16px 0;
+      }
+
+      .btn-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      button {
+        border: none;
+        padding: 9px 20px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 13px;
+      }
+
+      .btn-start {
+        background: linear-gradient(135deg, #45d1ff, #3e7dff);
+        color: #041020;
+        font-weight: 600;
+      }
+
+      .btn-stop {
+        background: rgba(255, 80, 80, 0.15);
+        color: #ff9b9b;
+      }
+
+      .btn-reset {
+        background: rgba(255, 200, 90, 0.15);
+        color: #ffd167;
+      }
+
+      /* --------------------------------
+        Alarm Manager
+    -------------------------------- */
+      .alarm-field {
+        margin-top: 16px;
+      }
+
+      .alarm-field label {
+        font-size: 14px;
+        margin-bottom: 6px;
+        display: block;
+        color: #dce2ff;
+      }
+
+      .alarm-input {
+        width: 100%;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(120, 150, 255, 0.3);
+        border-radius: 12px;
+        color: white;
+      }
+
+      /* 알람 리스트 */
+      .alarm-list {
+        margin-top: 20px;
+        border-top: 1px solid rgba(150, 170, 255, 0.2);
+        padding-top: 16px;
+      }
+
+      .alarm-item {
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(150, 170, 255, 0.2);
+      }
+
+      /* ------------------------------
+        Date Picker Modal
+    ------------------------------ */
+      #date-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(3px);
+      }
+
+      .modal-box {
+        width: 380px;
+        background: white;
+        border-radius: 18px;
+        padding: 28px;
+        text-align: center;
+        color: #222;
+      }
+
+      .modal-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 22px;
+      }
+
+      .modal-select {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 14px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+      }
+
+      .modal-row {
+        display: flex;
+        gap: 10px;
+      }
+
+      .modal-btn {
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        border: none;
+        margin-top: 10px;
+        cursor: pointer;
+      }
+
+      .confirm-btn {
+        background: #2f65ff;
+        color: white;
+      }
+
+      .close-btn {
+        background: #e9e9e9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div>
+        <div class="title">Time Lab PRO</div>
+        <div class="subtitle">Digital Clock · Stopwatch · Alarm Manager</div>
+      </div>
+
+      <section class="time-grid">
+        <!-- CLOCK -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="icon">⏰</span> Digital Clock
+            </div>
+            <div class="card-tag">REAL-TIME</div>
+          </div>
+          <div id="clock">00:00:00</div>
+        </article>
+
+        <!-- STOPWATCH -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">⏱</span> Stopwatch</div>
+            <div class="card-tag">TIMER</div>
+          </div>
+
+          <div id="stopwatch">0.00s</div>
+
+          <div class="btn-row">
+            <button class="btn-start" id="sw-start">Start</button>
+            <button class="btn-stop" id="sw-stop">Stop</button>
+            <button class="btn-reset" id="sw-reset">Reset</button>
+          </div>
+        </article>
+
+        <!-- ALARM SYSTEM -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="icon">🔔</span> Alarm Manager
+            </div>
+            <div class="card-tag">ALERT</div>
+          </div>
+
+          <div class="alarm-field">
+            <label>알림 제목</label>
+            <input
+              type="text"
+              id="alarm-title"
+              class="alarm-input"
+              placeholder="예: 책 읽기 알림"
+            />
+          </div>
+
+          <div class="alarm-field">
+            <label>날짜 선택</label>
+            <button class="btn-start" style="width: 100%" id="open-date-picker">
+              날짜 선택하기
+            </button>
+          </div>
+
+          <div class="alarm-field">
+            <label>시간 선택</label>
+            <div class="modal-row">
+              <select id="hour" class="alarm-input"></select>
+              <select id="minute" class="alarm-input"></select>
+            </div>
+          </div>
+
+          <button
+            class="btn-start"
+            style="width: 100%; margin-top: 16px"
+            id="add-alarm"
+          >
+            알림 추가하기
+          </button>
+
+          <div class="alarm-list" id="alarm-list"></div>
+        </article>
+      </section>
+    </div>
+
+    <!-- 📌 날짜 선택 모달 -->
+    <div id="date-modal">
+      <div class="modal-box">
+        <div class="modal-title">날짜 선택</div>
+
+        <div class="modal-row">
+          <select id="year" class="modal-select"></select>
+          <select id="month" class="modal-select"></select>
+          <select id="day" class="modal-select"></select>
+        </div>
+
+        <button class="modal-btn confirm-btn" id="confirm-date">확인</button>
+        <button class="modal-btn close-btn" id="close-date">닫기</button>
+      </div>
+    </div>
+
+    <script>
+      /********************************************
+       *  PART A — 디지털 시계
+       ********************************************/
+      function updateClock() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, "0");
+        const m = String(now.getMinutes()).padStart(2, "0");
+        const s = String(now.getSeconds()).padStart(2, "0");
+
+        document.getElementById("clock").textContent = `${h}:${m}:${s}`;
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+
+      /********************************************
+       *  PART B — 스톱워치
+       ********************************************/
+      let swTime = 0; // 경과 초
+      let swInterval = null;
+
+      const swDisplay = document.getElementById("stopwatch");
+      const swStart = document.getElementById("sw-start");
+      const swStop = document.getElementById("sw-stop");
+      const swReset = document.getElementById("sw-reset");
+
+      function updateStopwatch() {
+        swTime += 0.01;
+        swDisplay.textContent = swTime.toFixed(2) + "s";
+      }
+
+      swStart.onclick = () => {
+        if (!swInterval) swInterval = setInterval(updateStopwatch, 10);
+      };
+
+      swStop.onclick = () => {
+        clearInterval(swInterval);
+        swInterval = null;
+      };
+
+      swReset.onclick = () => {
+        clearInterval(swInterval);
+        swInterval = null;
+        swTime = 0;
+        swDisplay.textContent = "0.00s";
+      };
+
+      /********************************************
+       *  PART C — 날짜 선택 모달
+       ********************************************/
+      const dateModal = document.getElementById("date-modal");
+      const openDatePickerBtn = document.getElementById("open-date-picker");
+      const closeDateBtn = document.getElementById("close-date");
+      const confirmDateBtn = document.getElementById("confirm-date");
+
+      const yearSel = document.getElementById("year");
+      const monthSel = document.getElementById("month");
+      const daySel = document.getElementById("day");
+
+      // 현재 날짜 기본값
+      const now = new Date();
+      let selectedDate = {
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+        day: now.getDate(),
+      };
+
+      // 📌 연도 옵션 세팅 (2020~2030)
+      function setupYears() {
+        yearSel.innerHTML = "";
+        for (let y = 2020; y <= 2030; y++) {
+          const op = document.createElement("option");
+          op.value = y;
+          op.textContent = y + "년";
+          if (y === selectedDate.year) op.selected = true;
+          yearSel.appendChild(op);
+        }
+      }
+
+      // 📌 월 옵션 세팅
+      function setupMonths() {
+        monthSel.innerHTML = "";
+        for (let m = 1; m <= 12; m++) {
+          const op = document.createElement("option");
+          op.value = m;
+          op.textContent = m + "월";
+          if (m === selectedDate.month) op.selected = true;
+          monthSel.appendChild(op);
+        }
+      }
+
+      // 📌 일 옵션 세팅 (월별 일수 반영)
+      function setupDays() {
+        daySel.innerHTML = "";
+        const last = new Date(
+          selectedDate.year,
+          selectedDate.month,
+          0
+        ).getDate();
+
+        for (let d = 1; d <= last; d++) {
+          const op = document.createElement("option");
+          op.value = d;
+          op.textContent = d + "일";
+          if (d === selectedDate.day) op.selected = true;
+          daySel.appendChild(op);
+        }
+      }
+
+      // 📌 날짜 picker 실행
+      openDatePickerBtn.onclick = () => {
+        setupYears();
+        setupMonths();
+        setupDays();
+        dateModal.style.display = "flex";
+      };
+
+      closeDateBtn.onclick = () => {
+        dateModal.style.display = "none";
+      };
+
+      // 📌 모달에서 날짜 선택 완료
+      confirmDateBtn.onclick = () => {
+        selectedDate.year = Number(yearSel.value);
+        selectedDate.month = Number(monthSel.value);
+        selectedDate.day = Number(daySel.value);
+
+        openDatePickerBtn.textContent = `${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일`;
+
+        dateModal.style.display = "none";
+      };
+
+      /********************************************
+       *  PART D — 알람 시스템 전체 기능
+       ********************************************/
+      const alarmTitleInput = document.getElementById("alarm-title");
+      const alarmList = document.getElementById("alarm-list");
+      const addAlarmBtn = document.getElementById("add-alarm");
+
+      const hourSel = document.getElementById("hour");
+      const minuteSel = document.getElementById("minute");
+
+      let alarms = [];
+
+      /* ---------------------------------
+   시간 선택 드롭다운 세팅
+--------------------------------- */
+      function setupTimeSelect() {
+        for (let h = 0; h < 24; h++) {
+          const op = document.createElement("option");
+          op.value = h;
+          op.textContent = h.toString().padStart(2, "0") + "시";
+          if (h === now.getHours()) op.selected = true;
+          hourSel.appendChild(op);
+        }
+
+        for (let m = 0; m < 60; m++) {
+          const op = document.createElement("option");
+          op.value = m;
+          op.textContent = m.toString().padStart(2, "0") + "분";
+          if (m === now.getMinutes()) op.selected = true;
+          minuteSel.appendChild(op);
+        }
+      }
+      setupTimeSelect();
+
+      /* ---------------------------------
+   알람 추가
+--------------------------------- */
+      addAlarmBtn.onclick = () => {
+        const title = alarmTitleInput.value.trim();
+        if (!title) {
+          alert("알림 제목을 입력하세요!");
+          return;
+        }
+
+        const y = selectedDate.year;
+        const m = selectedDate.month - 1; // JS는 0~11월
+        const d = selectedDate.day;
+        const hh = Number(hourSel.value);
+        const mm = Number(minuteSel.value);
+
+        const alarmTime = new Date(y, m, d, hh, mm, 0);
+
+        if (alarmTime < new Date()) {
+          alert("과거 시간에는 알림을 설정할 수 없습니다!");
+          return;
+        }
+
+        // 알람 객체 생성
+        const alarmObj = {
+          id: Date.now(),
+          title,
+          time: alarmTime.getTime(),
+        };
+
+        alarms.push(alarmObj);
+
+        alarmTitleInput.value = "";
+        renderAlarms();
+
+        alert("알림이 추가되었습니다!");
+      };
+
+      /* ---------------------------------
+   알람 렌더링
+--------------------------------- */
+      function renderAlarms() {
+        alarmList.innerHTML = "";
+
+        alarms
+          .sort((a, b) => a.time - b.time)
+          .forEach((a) => {
+            const box = document.createElement("div");
+            box.className = "alarm-item";
+
+            const dateStr = new Date(a.time).toLocaleString("ko-KR", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            });
+
+            box.innerHTML = `
+        <div><b>${a.title}</b></div>
+        <div style="margin:6px 0; font-size:13px; opacity:0.8;">${dateStr}</div>
+        <button
+          style="padding:8px 14px; margin-top:6px;
+                 border-radius:10px; background:#ff6060;
+                 border:none; color:white; cursor:pointer;"
+          onclick="deleteAlarm(${a.id})"
+        >삭제</button>
+      `;
+
+            alarmList.appendChild(box);
+          });
+      }
+
+      window.deleteAlarm = function (id) {
+        alarms = alarms.filter((a) => a.id !== id);
+        renderAlarms();
+      };
+
+      /* ---------------------------------
+   알람 체크 (1초마다 확인)
+--------------------------------- */
+      setInterval(() => {
+        const now = Date.now();
+
+        alarms.forEach((a) => {
+          if (!a._triggered && a.time <= now) {
+            a._triggered = true;
+            alert(`🔔 알림: ${a.title}`);
+          }
+        });
+      }, 1000);
+    </script>
+  </body>
+</html>

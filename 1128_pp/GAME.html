@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MINI GAME - 돌려돌려돌림판</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Pretendard", sans-serif;
+        background: linear-gradient(135deg, #ff1744, #ff8a65, #ff5252);
+        background-size: 400% 400%;
+        animation: bgMove 10s infinite alternate;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      @keyframes bgMove {
+        0% {
+          background-position: 0% 50%;
+        }
+        100% {
+          background-position: 100% 50%;
+        }
+      }
+
+      /* 반짝이는 효과 */
+      .sparkles {
+        position: fixed;
+        inset: 0;
+        background-image: radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.8) 2px,
+            transparent 2px
+          ),
+          radial-gradient(circle, rgba(255, 255, 255, 0.4) 2px, transparent 2px);
+        background-size: 40px 40px, 60px 60px;
+        background-position: 0 0, 30px 30px;
+        opacity: 0.18;
+        animation: sparkleMove 6s linear infinite;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      @keyframes sparkleMove {
+        from {
+          transform: translateY(0);
+        }
+        to {
+          transform: translateY(-60px);
+        }
+      }
+
+      .container {
+        position: relative;
+        z-index: 5;
+        width: 90%;
+        max-width: 620px;
+        padding: 24px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 26px;
+        border: 3px solid #ffe5ec;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        text-align: center;
+        backdrop-filter: blur(10px);
+      }
+
+      h1 {
+        font-size: 38px;
+        font-weight: 900;
+        margin: 0;
+        text-shadow: 2px 3px 0 rgba(0, 0, 0, 0.3);
+      }
+
+      .subtitle {
+        font-size: 20px;
+        font-weight: 700;
+        margin: 6px 0 20px;
+      }
+
+      /* ─── 스테이지 선택 화면 ─── */
+      #stagePage button {
+        background: #fff;
+        color: #ff1744;
+        border-radius: 14px;
+        padding: 14px 26px;
+        margin: 12px;
+        border: none;
+        font-size: 18px;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+        transition: 0.15s;
+        width: 80%;
+        max-width: 260px;
+      }
+
+      #stagePage button:hover {
+        transform: translateY(-3px);
+      }
+
+      /* ─── 게임 페이지 ─── */
+      #gamePage {
+        display: none;
+        margin-top: 10px;
+      }
+
+      .game-wrapper {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .game-left {
+        flex: 1;
+        min-width: 300px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      }
+
+      .game-right {
+        width: 200px;
+        min-width: 160px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 16px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      }
+
+      .record-title {
+        font-size: 18px;
+        font-weight: 900;
+        margin-bottom: 12px;
+      }
+
+      .record-list {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        min-height: 340px;
+        padding: 10px;
+        font-size: 14px;
+        text-align: left;
+      }
+
+      .record-item {
+        margin-bottom: 8px;
+        font-weight: 700;
+      }
+
+      .win-text {
+        color: #00ff98;
+      }
+      .lose-text {
+        color: #ff4d4d;
+      }
+
+      .status-box {
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
+        margin-bottom: 12px;
+        font-weight: 800;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      /* ─── 캐릭터 (스테이지별 색 자동) ─── */
+      .character {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        margin: 14px auto 16px;
+        border: 4px solid #fff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 7px 16px rgba(0, 0, 0, 0.4);
+      }
+
+      .pink {
+        background: radial-gradient(circle at 30% 30%, #ffe4f3, #ff7bb5);
+      }
+      .blue {
+        background: radial-gradient(circle at 30% 30%, #e0f0ff, #6ea9ff);
+      }
+      .yellow {
+        background: radial-gradient(circle at 30% 30%, #fff6cc, #ffd447);
+      }
+
+      .eyes {
+        position: absolute;
+        top: 42px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 30px;
+      }
+
+      .eye {
+        width: 20px;
+        height: 20px;
+        background: #fff;
+        border-radius: 50%;
+        position: relative;
+      }
+
+      .eye:after {
+        content: "";
+        width: 10px;
+        height: 10px;
+        background: #333;
+        border-radius: 50%;
+        position: absolute;
+        top: 5px;
+        left: 5px;
+      }
+
+      .mouth {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        width: 40px;
+        height: 20px;
+        transform: translateX(-50%);
+        background: #333;
+        border-radius: 0 0 20px 20px;
+      }
+
+      /* 캐릭터 춤추기 */
+      .dance {
+        animation: dance 0.7s ease 2;
+      }
+
+      @keyframes dance {
+        0% {
+          transform: translateY(0);
+        }
+        25% {
+          transform: translateY(-10px);
+        }
+        50% {
+          transform: translateY(0);
+        }
+        75% {
+          transform: translateY(-6px);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      /* ─── 룰렛 원 ─── */
+      .result-circle {
+        width: 120px;
+        height: 120px;
+        background: #fff;
+        color: #ff1744;
+        border-radius: 50%;
+        margin: 20px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        font-weight: 900;
+        border: 4px solid #ffe5ec;
+        box-shadow: 0 0 18px rgba(255, 255, 255, 0.9);
+      }
+
+      @keyframes glow {
+        0% {
+          box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+        }
+        100% {
+          box-shadow: 0 0 24px rgba(255, 255, 255, 1);
+        }
+      }
+
+      .glow {
+        animation: glow 0.2s infinite alternate;
+      }
+
+      .btn-row {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        margin-bottom: 10px;
+      }
+
+      .game-btn {
+        padding: 12px 24px;
+        border-radius: 16px;
+        border: none;
+        font-size: 18px;
+        font-weight: 900;
+        cursor: pointer;
+        color: #fff;
+        text-shadow: 1px 2px 0 rgba(0, 0, 0, 0.35);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+        transition: 0.15s;
+        min-width: 100px;
+      }
+
+      .even-btn {
+        background: #4f68ff;
+      }
+      .odd-btn {
+        background: #ff5e9c;
+      }
+      .game-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+      }
+      .game-btn:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+
+      .status-text {
+        margin-top: 6px;
+        font-size: 14px;
+        min-height: 20px;
+      }
+
+      /* ─── 엔딩 팝업 ─── */
+      #endingOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        z-index: 10;
+      }
+
+      .ending-box {
+        width: 90%;
+        max-width: 460px;
+        background: #fff;
+        color: #ff1744;
+        padding: 30px;
+        border-radius: 22px;
+        text-align: center;
+        font-size: 26px;
+        font-weight: 900;
+      }
+
+      .restart-btn {
+        margin-top: 18px;
+        background: #ff5e9c;
+        color: #fff;
+        padding: 12px 26px;
+        border-radius: 16px;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: 900;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="sparkles"></div>
+
+    <div class="container">
+      <h1>MINI GAME</h1>
+      <div class="subtitle">주연이의 돌려돌려돌림판 🎡</div>
+
+      <!-- ──────────────────────── PAGE 1 / STAGE SELECT ──────────────────────── -->
+      <div id="stagePage">
+        <h2>스테이지 선택 🎯</h2>
+        <button onclick="selectStage(1)">Stage 1 (Basic)</button>
+        <button onclick="selectStage(2)">Stage 2 (Fast)</button>
+        <button onclick="selectStage(3)">Stage 3 (Hard)</button>
+      </div>
+
+      <!-- ──────────────────────── PAGE 2 / GAME PAGE ──────────────────────── -->
+      <div id="gamePage">
+        <div class="game-wrapper">
+          <!-- LEFT SIDE - GAME -->
+          <div class="game-left">
+            <div class="status-box">
+              <div>Round: <span id="round">1</span>/10</div>
+              <div>
+                승: <span id="wins">0</span> / 패: <span id="losses">0</span>
+              </div>
+              <div>💰 <span id="cash">1000</span></div>
+            </div>
+
+            <div id="character" class="character pink">
+              <div class="eyes">
+                <div class="eye"></div>
+                <div class="eye"></div>
+              </div>
+              <div class="mouth"></div>
+            </div>
+
+            <div id="resultCircle" class="result-circle">?</div>
+
+            <div class="btn-row">
+              <button id="evenBtn" class="game-btn even-btn" disabled>
+                짝
+              </button>
+              <button id="oddBtn" class="game-btn odd-btn" disabled>홀</button>
+            </div>
+
+            <div id="statusText" class="status-text">게임을 시작하세요!</div>
+          </div>
+
+          <!-- RIGHT SIDE - RECORDS -->
+          <div class="game-right">
+            <div class="record-title">📜 기록판</div>
+            <div id="recordList" class="record-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────────────────────── ENDING POPUP ──────────────────────── -->
+    <div id="endingOverlay">
+      <div class="ending-box">
+        <div id="endingMain">결과</div>
+        <div
+          id="endingSub"
+          style="font-size: 20px; color: #444; margin-top: 8px"
+        ></div>
+        <div id="endingInfo" style="font-size: 14px; margin-top: 10px"></div>
+        <button class="restart-btn" onclick="location.reload()">
+          🔄 RESTART
+        </button>
+      </div>
+    </div>
+
+    <script>
+      let round = 1;
+      let wins = 0;
+      let losses = 0;
+      let cash = 1000;
+      let rouletteSpeed = 120;
+      let playing = false;
+      let rouletteTimer = null;
+
+      const roundEl = document.getElementById("round");
+      const winsEl = document.getElementById("wins");
+      const lossesEl = document.getElementById("losses");
+      const cashEl = document.getElementById("cash");
+      const characterEl = document.getElementById("character");
+      const resultCircle = document.getElementById("resultCircle");
+      const statusText = document.getElementById("statusText");
+      const recordList = document.getElementById("recordList");
+      const evenBtn = document.getElementById("evenBtn");
+      const oddBtn = document.getElementById("oddBtn");
+      const endingOverlay = document.getElementById("endingOverlay");
+      const endingMain = document.getElementById("endingMain");
+      const endingSub = document.getElementById("endingSub");
+      const endingInfo = document.getElementById("endingInfo");
+
+      // 스테이지 선택 → 캐릭터 색 + 룰렛 속도 + 페이지 전환
+      function selectStage(stage) {
+        if (stage === 1) {
+          rouletteSpeed = 130;
+          characterEl.classList.remove("blue", "yellow");
+          characterEl.classList.add("pink");
+        } else if (stage === 2) {
+          rouletteSpeed = 90;
+          characterEl.classList.remove("pink", "yellow");
+          characterEl.classList.add("blue");
+        } else if (stage === 3) {
+          rouletteSpeed = 50;
+          characterEl.classList.remove("pink", "blue");
+          characterEl.classList.add("yellow");
+        }
+
+        document.getElementById("stagePage").style.display = "none";
+        document.getElementById("gamePage").style.display = "block";
+
+        evenBtn.disabled = false;
+        oddBtn.disabled = false;
+        statusText.textContent = "홀(ODD) 또는 짝(EVEN)을 선택해 보세요!";
+      }
+
+      function updateUI() {
+        roundEl.textContent = round;
+        winsEl.textContent = wins;
+        lossesEl.textContent = losses;
+        cashEl.textContent = cash;
+      }
+
+      function addRecord(result) {
+        const item = document.createElement("div");
+        item.classList.add("record-item");
+        item.innerHTML =
+          `[R${round}] → ` +
+          (result === "win"
+            ? '<span class="win-text">WIN 🎉</span>'
+            : '<span class="lose-text">LOSE 💥</span>');
+        recordList.appendChild(item);
+      }
+
+      evenBtn.addEventListener("click", () => playRound("even"));
+      oddBtn.addEventListener("click", () => playRound("odd"));
+
+      function playRound(choice) {
+        if (playing) return;
+        if (round > 10) return;
+
+        if (cash < 100) {
+          alert("캐시가 부족합니다! (라운드당 100 캐시 필요)");
+          return;
+        }
+
+        playing = true;
+        cash -= 100;
+        updateUI();
+        statusText.textContent = "룰렛 돌아가는 중...";
+
+        // 룰렛 애니메이션 시작
+        let toggle = true;
+        resultCircle.classList.add("glow");
+
+        rouletteTimer = setInterval(() => {
+          resultCircle.textContent = toggle ? "짝" : "홀";
+          toggle = !toggle;
+        }, rouletteSpeed);
+
+        setTimeout(() => {
+          clearInterval(rouletteTimer);
+          resultCircle.classList.remove("glow");
+
+          const real = Math.random() < 0.5 ? "even" : "odd";
+          const isWin = real === choice;
+
+          resultCircle.textContent = real === "even" ? "짝" : "홀";
+
+          if (isWin) {
+            wins++;
+            cash += 150;
+            statusText.textContent = "🎉 정답! +150 캐시!";
+            // 캐릭터 춤추기
+            characterEl.classList.add("dance");
+            setTimeout(() => characterEl.classList.remove("dance"), 800);
+            addRecord("win");
+          } else {
+            losses++;
+            statusText.textContent = "💥 틀렸습니다!";
+            addRecord("lose");
+          }
+
+          updateUI();
+          round++;
+
+          if (round > 10) {
+            finishGame();
+          } else {
+            playing = false;
+          }
+        }, 1200);
+      }
+
+      function finishGame() {
+        let mainText, subText;
+
+        if (wins > losses) {
+          mainText = "🎉 당신이 이겼어요!";
+          subText = "+5000 캐시 지급!";
+          cash += 5000;
+        } else {
+          mainText = "😢 아쉽게 졌어요...";
+          subText = "-1000 캐시 차감!";
+          cash -= 1000;
+        }
+
+        updateUI();
+
+        endingMain.textContent = mainText;
+        endingSub.textContent = subText;
+        endingInfo.textContent = `최종 전적: 승 ${wins} / 패 ${losses} | 남은 캐시: ${cash}`;
+        endingOverlay.style.display = "flex";
+      }
+    </script>
+  </body>
+</html>
